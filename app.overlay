@@ -1,0 +1,82 @@
+/*
+ * Board overlay for imu_mag_test
+ * Target: STM32H7A3ZI-Q (nucleo_h7a3zi_q)
+ *
+ * I2C1  -> PB6 (SCL), PB9 (SDA)
+ *   - mpu6050@68  (IMU 0, AD0=GND)
+ *   - mpu6050@69  (IMU 1, AD0=VCC)
+ *   - lsm9ds1_mag@1c (MAG 0, SDO_M=GND -> 0x1C)
+ *
+ * I2C4  -> PF14 (SCL), PF15 (SDA)
+ *   - mpu6050@68  (IMU 2, AD0=GND)
+ *   - lsm9ds1_mag@1c (MAG 1, SDO_M=GND -> 0x1C)
+ *   - lsm9ds1_mag@1e (MAG 2, SDO_M=VCC -> 0x1E)
+ */
+
+&i2c1 {
+	status = "disabled";
+	pinctrl-0 = <&i2c1_scl_pb6 &i2c1_sda_pb9>;
+	pinctrl-names = "default";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	
+
+
+	/* IMU 0 — MPU6050, AD0 pin low */
+	imu0: mpu6050@68 {
+		compatible = "invensense,mpu6050";
+		reg = <0x68>;
+		status = "disabled";
+	};
+
+	/* IMU 1 — MPU6050, AD0 pin high */
+	imu1: mpu6050@69 {
+		compatible = "invensense,mpu6050";
+		reg = <0x69>;
+		status = "disabled";
+	};
+
+	/* MAG 0 — LSM9DS1 magnetometer only, SDO_M low -> 0x1C */
+	mag0: lsm9ds1_mag@1c {
+		compatible = "st,lsm9ds1_mag";
+		reg = <0x1c>;
+		status = "disabled";
+	};
+};
+
+&i2c4 {
+	status = "okay";
+	pinctrl-0 = <&i2c4_scl_pf14 &i2c4_sda_pf15>;
+	pinctrl-names = "default";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+
+	lsmimu: lsm9ds1@6a {
+                compatible = "st,lsm9ds1";
+                reg = <0x6b>;
+                status = "okay";
+		imu-odr = <0x11>;
+		accel-range = <0>;
+		gyro-range = <0>;
+        };
+
+
+	/* IMU 2 — MPU6050, AD0 pin low */
+	imu2: mpu6050@68 {
+		compatible = "invensense,mpu6050";
+		reg = <0x68>;
+		status = "okay";
+	};
+
+	/* MAG 1 — LSM9DS1 magnetometer only, SDO_M low -> 0x1C */
+	mag1: lsm9ds1_mag@1c {
+		compatible = "st,lsm9ds1_mag";
+		reg = <0x1c>;
+		status = "okay";
+	};
+
+	/* MAG 2 — LSM9DS1 magnetometer only, SDO_M high -> 0x1E */
+	mag2: lsm9ds1_mag@1e {
+		compatible = "st,lsm9ds1_mag";
+		reg = <0x1e>;
+		status = "okay";
+	};
+};
